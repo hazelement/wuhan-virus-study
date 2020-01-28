@@ -1,4 +1,4 @@
-# refer to https://www.zhihu.com/question/367466399 for model formula
+
 import numpy as np
 
 
