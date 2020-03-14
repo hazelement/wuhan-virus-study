@@ -81,12 +81,20 @@ class DataModel(object):
     def plot_historical(self):
         # plot fitted curve
         plot_data = self.get_plot_data()
+        self.setup_axis()
+
         plt.plot(plot_data.existing_x, plot_data.existing_y, label=self.target_data.label)
 
     def plot_statistical_model(self):
         # plot fitted curve
         plot_data = self.get_plot_data()
+        self.setup_axis()
+
         plt.plot(plot_data.curve_x, plot_data.curve_y, label=self.target_data.label)
+
+    def setup_axis(self):
+        plt.xlabel("Num days from first confirmed case")
+        plt.ylabel("Accumulative cases")
 
     def plot(self):
         """
@@ -119,6 +127,7 @@ class DataModel(object):
             for index, (x, y) in enumerate(zip(predicted_x, predicted_y)):
                 plt.annotate(str(int(y)), (x, y))
 
+        self.setup_axis()
         plt.title(self.target_data.label)
         plt.savefig(f"plots/{self.target_data.label.split('.')[0]}.png")
         plt.show()
@@ -145,7 +154,7 @@ def get_country_model(country_name):
 ### Plotting
 
 
-def plot_model_lists(models: List[DataModel]):
+def plot_model_lists(models: List[DataModel], savefig=None):
     """
     Plot alist of Data model to graph
     :param models:
@@ -153,11 +162,10 @@ def plot_model_lists(models: List[DataModel]):
     """
     for data_model in models:
         data_model.plot_historical()
-        # plot_data = data_model.get_plot_data()
-        # # plot fitted curve
-        # plt.plot(plot_data.curve_x, plot_data.curve_y, label=data_model.target_data.label)
     plt.legend()
     plt.yscale('log')
+    if savefig is not None:
+        plt.savefig(savefig)
     plt.show()
 
 
@@ -175,7 +183,7 @@ def country_comparision(country_names):
     country_models = []
     for country in country_names:
         country_models.append(get_country_model(country))
-    plot_model_lists(country_models)
+    plot_model_lists(country_models, "plots/countries.png")
 
 
 def file_comparison(city_names):
@@ -192,8 +200,8 @@ def file_comparison(city_names):
 if __name__ == '__main__':
     # city_name = "canada"
     # plot_city("canada")
-    plot_country("United States")
-    plot_country("Canada")
+    # plot_country("United Stat
+    #     plt.savefig(f"plots/countries.png")
     country_comparision(["Canada", "Spain", "France", "United States", "United Kingdom", "Italy"])
     # group_comparison(["canada", "us"])
     # file_model.plot()
