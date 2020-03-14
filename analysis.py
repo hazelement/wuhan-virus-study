@@ -9,6 +9,9 @@ from models import si_model_expression as si_expression
 from data import CountryData, FileData, AbstractData
 
 
+# todo add states comparision in US
+# todo add province comparision in Canada
+
 class StatisticModel(object):
 
     def __init__(self, model, expression):
@@ -17,12 +20,17 @@ class StatisticModel(object):
         self.fitted_formula = None
         self.coeff = None
         self.cov = None
+        self.fitted = False
 
     def fit(self, x, y):
-        coeff, cov = curve_fit(self.model, x, y)
-        self.fitted_formula = si_expression(*coeff)
-        self.coeff = coeff
-        self.cov = cov
+        try:
+            coeff, cov = curve_fit(self.model, x, y)
+            self.fitted_formula = si_expression(*coeff)
+            self.coeff = coeff
+            self.cov = cov
+            self.fitted = True
+        except RuntimeError as e:
+            print(e)
 
     def calculate(self, x):
         return [self.model(t, *self.coeff) for t in x]
@@ -50,21 +58,35 @@ class DataModel(object):
         self.target_data = target_data
         self.statistic_model = statistics_model
         self.statistic_model.fit(self.target_data.x, self.target_data.y)
-        print(self.statistic_model.fitted_formula)
 
     def get_plot_data(self):
         x = self.target_data.x
         y = self.target_data.y
         date_point = self.target_data.date_point
 
-        x_1 = np.arange(0, len(x) * 1.2, 1)
-        y_1 = self.statistic_model.calculate(x_1)
+        if self.statistic_model.fitted:
+            x_1 = np.arange(0, len(x) * 1.2, 1)
+            y_1 = self.statistic_model.calculate(x_1)
+        else:
+            print("Statistical model not fitted")
+            x_1 = None
+            y_1 = None
 
         return PlotData(existing_x=x,
                         existing_y=y,
                         existing_date_point=date_point,
                         curve_x=x_1,
                         curve_y=y_1)
+
+    def plot_historical(self):
+        # plot fitted curve
+        plot_data = self.get_plot_data()
+        plt.plot(plot_data.existing_x, plot_data.existing_y, label=self.target_data.label)
+
+    def plot_statistical_model(self):
+        # plot fitted curve
+        plot_data = self.get_plot_data()
+        plt.plot(plot_data.curve_x, plot_data.curve_y, label=self.target_data.label)
 
     def plot(self):
         """
@@ -85,19 +107,20 @@ class DataModel(object):
         plt.annotate(f"{date_point[-1]}: {int(y[-1])}", xy=(x[-1], y[-1]),
                      xytext=(x[-1] / 2, y[-1]), arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=8))
 
-        # plot fitted curve
-        plt.plot(x_1, y_1, color="red")
-        plt.text(1, y[-1] / 9, self.statistic_model.fitted_formula, fontsize=12)
+        if x_1 is not None and y_1 is not None:
+            # plot fitted curve
+            plt.plot(x_1, y_1, color="red")
+            plt.text(1, y[-1] / 9, self.statistic_model.fitted_formula, fontsize=12)
 
-        # plot prediction
-        predicted_x = x_1[len(x):][0:2]
-        predicted_y = y_1[len(x):][0:2]
-        plt.scatter(predicted_x, predicted_y)
-        for index, (x, y) in enumerate(zip(predicted_x, predicted_y)):
-            plt.annotate(str(int(y)), (x, y))
+            # plot prediction
+            predicted_x = x_1[len(x):][0:2]
+            predicted_y = y_1[len(x):][0:2]
+            plt.scatter(predicted_x, predicted_y)
+            for index, (x, y) in enumerate(zip(predicted_x, predicted_y)):
+                plt.annotate(str(int(y)), (x, y))
 
         plt.title(self.target_data.label)
-        plt.savefig(self.target_data.label.split(".")[0] + ".png")
+        plt.savefig(f"plots/{self.target_data.label.split('.')[0]}.png")
         plt.show()
 
 
@@ -129,10 +152,12 @@ def plot_model_lists(models: List[DataModel]):
     :return:
     """
     for data_model in models:
-        plot_data = data_model.get_plot_data()
-        # plot fitted curve
-        plt.plot(plot_data.curve_x, plot_data.curve_y, label=data_model.target_data.label)
+        data_model.plot_historical()
+        # plot_data = data_model.get_plot_data()
+        # # plot fitted curve
+        # plt.plot(plot_data.curve_x, plot_data.curve_y, label=data_model.target_data.label)
     plt.legend()
+    plt.yscale('log')
     plt.show()
 
 
@@ -168,7 +193,8 @@ if __name__ == '__main__':
     # city_name = "canada"
     # plot_city("canada")
     plot_country("United States")
-    country_comparision(["Canada", "Italy"])
+    plot_country("Canada")
+    country_comparision(["Canada", "Spain", "France", "United States", "United Kingdom", "Italy"])
     # group_comparison(["canada", "us"])
     # file_model.plot()
 
