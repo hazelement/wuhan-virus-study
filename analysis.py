@@ -148,7 +148,7 @@ class DataModel(object):
             plt.text(event[0]+0.1, plot_data.existing_y[min(len(plot_data.existing_y)-1, event[0])],
                      event[1], rotation=90,
                      color=color)
-            plt.axvline(event[0], dashes=(5, 2, 1, 2), color=color)
+            # plt.axvline(event[0], dashes=(5, 2, 1, 2), color=color)
 
     def plot_statistical_model(self):
         # plot fitted curve

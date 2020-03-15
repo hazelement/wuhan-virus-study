@@ -1,6 +1,7 @@
 from typing import List
 
 from matplotlib import pyplot as plt
+import mpld3
 
 from analysis import DataModel, StatisticModel
 from data import FileData, CountryData
@@ -13,12 +14,16 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None):
     :param models:
     :return:
     """
+    plt.figure(figsize=(12,10))
     for data_model in models:
         data_model.plot_historical(y_threshold)
     plt.legend()
     plt.yscale('log')
     if savefig is not None:
         plt.savefig(savefig)
+
+        mpld3.save_html(plt.gcf(), savefig.split(".")[0] + ".html")
+
     plt.show()
 
 
