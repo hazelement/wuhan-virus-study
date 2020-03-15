@@ -1,0 +1,17 @@
+date,location,type,event
+2020-01-01,China,quarantine,Huanan Market closed
+2020-01-07,China,misc,Confirm new Coronavirus
+2020-01-23,China,quarantine,Wuhan lockdown
+2020-01-31,United States,travel,Restrict travel from China
+2020-02-23,Italy,quarantine,Start qurantining northern cities
+2020-02-29,United States,travel,"Travel ban from Italy, SK and Iran"
+2020-03-13,Italy,quarantine,country lockdown
+2020-01-02,Singapore,travel,Airport temperature check on Wuhan travelers
+2020-01-31,Singapore,travel,banned all travelers from mainland China
+2020-02-26,Singapore,travel,banned all travelers from South Korea
+2020-03-04,Singapore,travel,banned all travelers from Iran and Northan Italy
+2020-03-15,Singapore,travel,"banned all travelers from France, Spain and Germany"
+2020-02-14,France,death,First death in Europe
+2020-03-03,United States,policy,Approve widespread virus testing
+2020-03-11,United States,travel,Trump blocks most vistors from Europe
+2020-03-13,United States,policy,Trump declares national emergency

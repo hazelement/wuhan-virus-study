@@ -2,10 +2,13 @@ import numpy as np
 
 import requests
 import pandas as pd
+import os
+import time
 
 WHO_LINK = "https://covid.ourworldindata.org/data/full_data.csv"
 
 CACHE_FILE = "data/who_data.csv"
+EVENTS_FILE = "data/events.csv"
 
 
 def read_file(filename):
@@ -18,10 +21,11 @@ def retrieve_who_data():
     open(CACHE_FILE, 'wb').write(r.content)
 
 
-def read_data():
+def read_data(filename):
     # todo handle cache and auto update on daily basis
-    data = pd.read_csv(CACHE_FILE)
+    data = pd.read_csv(filename)
     data.fillna(0, inplace=True)
+    data['date'] = data['date'].astype('datetime64[ns]')
 
     return data
 
@@ -29,10 +33,19 @@ def read_data():
 class WhoDataSource(object):
 
     def __init__(self):
-        self.df = read_data()
+        if (int(time.time()) - os.path.getmtime(CACHE_FILE)) > 24 * 60 * 60:
+            retrieve_who_data()
+
+        self.df = read_data(CACHE_FILE)
 
     def get_location_data(self, location):
         return self.df[self.df["location"] == location]
+
+
+class EventData(WhoDataSource):
+
+    def __init__(self):
+        self.df = read_data(EVENTS_FILE)
 
 
 class AbstractData(object):
@@ -40,18 +53,21 @@ class AbstractData(object):
     y = None
     label = None
     date_point = None
+    events = None
 
 
 class CountryData(AbstractData):
 
     def __init__(self, country_name):
         who_data_source = WhoDataSource()
+        event_data_source = EventData()
         country_data = who_data_source.get_location_data(country_name)
 
         self.y = country_data["total_cases"].values
         self.date_point = country_data["date"].values
         self.x = np.arange(0, len(self.y), 1)
         self.label = country_name
+        self.events = event_data_source.get_location_data(country_name)
 
 
 class FileData(AbstractData):

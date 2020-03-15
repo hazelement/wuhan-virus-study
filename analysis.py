@@ -1,16 +1,39 @@
-from typing import List
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from scipy.optimize import curve_fit
 
-from models import si_model as si_model
-from models import si_model_expression as si_expression
-from data import CountryData, FileData, AbstractData
+from statistic_models import si_model_expression as si_expression
+from data import AbstractData
+import random
 
 
 # todo add states comparision in US
 # todo add province comparision in Canada
+
+
+def get_cmap(n, name='hsv'):
+    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
+    RGB color; the keyword argument name must be a standard mpl colormap name.'''
+    return plt.cm.get_cmap(name, n)
+
+
+def hashval(str, siz):
+    hash = 0
+    # Take ordinal number of char in str, and just add
+    for x in str: hash += (ord(x))
+    return (hash % siz)  # Depending on the range, do a modulo operation.
+
+
+colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
+color_index = -1
+
+
+def get_label_color(label):
+    global color_index
+    color_index += 1
+    color_index = color_index % len(colors)
+    return colors[color_index]
+
 
 class StatisticModel(object):
 
@@ -36,6 +59,12 @@ class StatisticModel(object):
         return [self.model(t, *self.coeff) for t in x]
 
 
+class EventData(object):
+
+    def __init__(self):
+        pass
+
+
 class PlotData(object):
 
     def __init__(self,
@@ -44,12 +73,14 @@ class PlotData(object):
                  existing_date_point,
                  curve_x,
                  curve_y,
+                 events=None
                  ):
         self.existing_x = existing_x
         self.existing_y = existing_y
         self.existing_date_point = existing_date_point
         self.curve_x = curve_x
         self.curve_y = curve_y
+        self.events = events
 
 
 class DataModel(object):
@@ -59,10 +90,27 @@ class DataModel(object):
         self.statistic_model = statistics_model
         self.statistic_model.fit(self.target_data.x, self.target_data.y)
 
-    def get_plot_data(self):
-        x = self.target_data.x
-        y = self.target_data.y
-        date_point = self.target_data.date_point
+    def get_event_data(self, start_date):
+        events = self.target_data.events
+        valid_events = events[events['date'] >= start_date]
+        valid_events['offset'] = valid_events['date'] - start_date
+        return valid_events
+
+    def get_plot_data(self, y_threshold=None):
+
+        x = []
+        y = []
+        date_point = []
+        i = -1
+
+        for (x_, y_, date_point_) in zip(self.target_data.x, self.target_data.y, self.target_data.date_point):
+            if y_threshold:
+                if y_ < y_threshold:
+                    continue
+            i += 1
+            x.append(i)
+            y.append(y_)
+            date_point.append(date_point_)
 
         if self.statistic_model.fitted:
             x_1 = np.arange(0, len(x) * 1.2, 1)
@@ -72,18 +120,30 @@ class DataModel(object):
             x_1 = None
             y_1 = None
 
+        event_data = self.get_event_data(date_point[0])
+        plot_event_data = []
+        for index, row in event_data.iterrows():
+            plot_event_data.append([row['offset'].days, f"{row['location']}: {row['event']}"])
+
         return PlotData(existing_x=x,
                         existing_y=y,
                         existing_date_point=date_point,
                         curve_x=x_1,
-                        curve_y=y_1)
+                        curve_y=y_1,
+                        events=plot_event_data)
 
-    def plot_historical(self):
+    def plot_historical(self, y_threshold=None):
         # plot fitted curve
-        plot_data = self.get_plot_data()
-        self.setup_axis()
+        plot_data = self.get_plot_data(y_threshold)
+        self.setup_axis(str(y_threshold))
+        color = get_label_color(self.target_data.label)
 
-        plt.plot(plot_data.existing_x, plot_data.existing_y, label=self.target_data.label)
+        plt.plot(plot_data.existing_x, plot_data.existing_y, label=self.target_data.label, color=color)
+        for event in plot_data.events:
+            plt.text(event[0], 100,
+                     event[1], rotation=90,
+                     color=color)
+            plt.axvline(event[0], dashes=(5, 2, 1, 2), color=color)
 
     def plot_statistical_model(self):
         # plot fitted curve
@@ -92,8 +152,8 @@ class DataModel(object):
 
         plt.plot(plot_data.curve_x, plot_data.curve_y, label=self.target_data.label)
 
-    def setup_axis(self):
-        plt.xlabel("Num days from first confirmed case")
+    def setup_axis(self, x_start_case="first"):
+        plt.xlabel(f"Num days from first {x_start_case} confirmed case")
         plt.ylabel("Accumulative cases")
 
     def plot(self):
@@ -131,79 +191,3 @@ class DataModel(object):
         plt.title(self.target_data.label)
         plt.savefig(f"plots/{self.target_data.label.split('.')[0]}.png")
         plt.show()
-
-
-### Get Model ###
-
-def get_file_model(city_name):
-    file_name = f"data/{city_name}.csv"
-
-    analysis_model = StatisticModel(si_model, si_expression)
-    file_data = FileData(file_name)
-    file_model = DataModel(file_data, analysis_model)
-    return file_model
-
-
-def get_country_model(country_name):
-    country_data = CountryData(country_name)
-    analysis_model = StatisticModel(si_model, si_expression)
-    country_model = DataModel(country_data, analysis_model)
-    return country_model
-
-
-### Plotting
-
-
-def plot_model_lists(models: List[DataModel], savefig=None):
-    """
-    Plot alist of Data model to graph
-    :param models:
-    :return:
-    """
-    for data_model in models:
-        data_model.plot_historical()
-    plt.legend()
-    plt.yscale('log')
-    if savefig is not None:
-        plt.savefig(savefig)
-    plt.show()
-
-
-def plot_country(country_name):
-    country_model = get_country_model(country_name)
-    country_model.plot()
-
-
-def plot_file(file_name):
-    file_model = get_file_model(file_name)
-    file_model.plot()
-
-
-def country_comparision(country_names):
-    country_models = []
-    for country in country_names:
-        country_models.append(get_country_model(country))
-    plot_model_lists(country_models, "plots/countries.png")
-
-
-def file_comparison(city_names):
-    file_models = []
-    for city in city_names:
-        file_name = f"data/{city}.csv"
-        analysis_model = StatisticModel(si_model, si_expression)
-        file_data = FileData(file_name)
-        file_model = DataModel(file_data, analysis_model)
-        file_models.append(file_model)
-    plot_model_lists(file_models)
-
-
-if __name__ == '__main__':
-    # city_name = "canada"
-    # plot_city("canada")
-    # plot_country("United Stat
-    #     plt.savefig(f"plots/countries.png")
-    country_comparision(["Canada", "Spain", "France", "United States", "United Kingdom", "Italy"])
-    # group_comparison(["canada", "us"])
-    # file_model.plot()
-
-    # plot_file_models([file_model])
