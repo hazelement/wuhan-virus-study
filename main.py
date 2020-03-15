@@ -7,4 +7,5 @@ if __name__ == '__main__':
         "South Korea",
         "Singapore",
         "China",
-        "Iran"])
+        "Iran",
+        "Canada"])

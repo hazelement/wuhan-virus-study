@@ -4,7 +4,7 @@ from scipy.optimize import curve_fit
 
 from statistic_models import si_model_expression as si_expression
 from data import AbstractData
-import random
+import matplotlib.ticker as ticker
 
 
 # todo add states comparision in US
@@ -139,8 +139,13 @@ class DataModel(object):
         color = get_label_color(self.target_data.label)
 
         plt.plot(plot_data.existing_x, plot_data.existing_y, label=self.target_data.label, color=color)
+
+        ax = plt.axes()
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(7))
+        ax.xaxis.set_minor_locator(ticker.MultipleLocator(1))
+
         for event in plot_data.events:
-            plt.text(event[0], 100,
+            plt.text(event[0]+0.1, plot_data.existing_y[min(len(plot_data.existing_y)-1, event[0])],
                      event[1], rotation=90,
                      color=color)
             plt.axvline(event[0], dashes=(5, 2, 1, 2), color=color)
