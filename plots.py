@@ -1,11 +1,15 @@
 from typing import List
 
+import matplotlib
 from matplotlib import pyplot as plt
 import mpld3
 
 from analysis import DataModel, StatisticModel
 from data import FileData, CountryData
 from statistic_models import si_model as si_model, si_model_expression as si_expression
+
+font = {'size': 12}
+matplotlib.rc('font', **font)
 
 
 def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None):
@@ -14,7 +18,8 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None):
     :param models:
     :return:
     """
-    plt.figure(figsize=(12,10))
+    plt.figure(figsize=(8, 6))
+    plt.grid(b=True)
     for data_model in models:
         data_model.plot_historical(y_threshold)
     plt.legend()
