@@ -1310,6 +1310,8 @@ date,location,new_cases,new_deaths,total_cases,total_deaths
 2020-03-15,Italy,3497,173,21157,1441
 2020-03-16,Italy,3590,368,24747,1809
 2020-03-17,Italy,3233,694,27980,2503
+2020-03-18,Italy,4207,694,27980,2503
+2020-03-19,Italy,5332,694,27980,2503
 2020-03-11,Jamaica,,,1,
 2020-03-12,Jamaica,0,,1,
 2020-03-13,Jamaica,0,,1,
@@ -2747,6 +2749,8 @@ date,location,new_cases,new_deaths,total_cases,total_deaths
 2020-03-15,United States,0,0,1678,41
 2020-03-16,United States,0,0,1678,41
 2020-03-17,United States,1825,17,3503,58
+2020-03-18,United States,2848,17,3503,58
+2020-03-19,United States,4530,17,3503,58
 2020-03-16,Uruguay,,,4,
 2020-03-17,Uruguay,2,,6,
 2020-03-16,Uzbekistan,,,4,

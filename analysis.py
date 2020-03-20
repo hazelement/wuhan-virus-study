@@ -78,6 +78,7 @@ class PlotData(object):
     def __init__(self,
                  existing_x,
                  existing_y,
+                 new_y,
                  existing_date_point,
                  curve_x,
                  curve_y,
@@ -85,6 +86,7 @@ class PlotData(object):
                  ):
         self.existing_x = existing_x
         self.existing_y = existing_y
+        self.new_y = new_y
         self.existing_date_point = existing_date_point
         self.curve_x = curve_x
         self.curve_y = curve_y
@@ -109,16 +111,19 @@ class DataModel(object):
 
         x = []
         y = []
+        new_y = []
         date_point = []
         i = -1
 
-        for (x_, y_, date_point_) in zip(self.target_data.x, self.target_data.y, self.target_data.date_point):
+        for (x_, y_, new_y_, date_point_) in zip(self.target_data.x, self.target_data.total_cases,
+                                                 self.target_data.new_cases, self.target_data.date_point):
             if y_threshold:
                 if y_ < y_threshold:
                     continue
             i += 1
             x.append(i)
             y.append(y_)
+            new_y.append(new_y_)
             date_point.append(date_point_)
 
         if self.statistic_model.fitted:
@@ -139,29 +144,49 @@ class DataModel(object):
 
         return PlotData(existing_x=x,
                         existing_y=y,
+                        new_y=new_y,
                         existing_date_point=date_point,
                         curve_x=x_1,
                         curve_y=y_1,
                         events=plot_event_data)
 
-    def plot_historical(self, y_threshold=None, label_vertical=True, y_label="Accumulative cases"):
+    def plot_data(self, y_threshold=None, label_vertical=True, plot_accumulative=True):
         # plot fitted curve
         plot_data = self.get_plot_data(y_threshold)
-        self.setup_axis(str(y_threshold), y_label)
+        if plot_accumulative:
+            self.setup_axis(str(y_threshold), "Accumulative cases")
+        else:
+            self.setup_axis(str(y_threshold), "Daily Incremental cases")
+
         color = get_label_color(self.target_data.label)
 
-        plt.plot(plot_data.existing_x, plot_data.existing_y, label=self.target_data.label, color=color)
+        if plot_accumulative:
+            plt.plot(plot_data.existing_x, plot_data.existing_y,
+                     label=self.target_data.label, color=color)
+            for event in plot_data.events:
+                rotation = 90 if label_vertical else 0
+                plt.text(event[0] + 0.1, plot_data.existing_y[min(len(plot_data.existing_y) - 1, event[0])],
+                         event[1], rotation=rotation,
+                         color=color)
+                # plt.axvline(event[0], dashes=(5, 2, 1, 2), color=color)
+        else:
+
+            new_x = []
+            new_y = []
+            for i, y in enumerate(plot_data.new_y):
+                if y != 0:
+                    new_x.append(plot_data.existing_x[i])
+                    new_y.append(y)
+            plt.plot(new_x, new_y,
+                        label=self.target_data.label, color=color)
+            plt.scatter(new_x, new_y,
+                        label=self.target_data.label, color=color)
 
         ax = plt.axes()
         ax.xaxis.set_major_locator(ticker.MultipleLocator(7))
         ax.xaxis.set_minor_locator(ticker.MultipleLocator(1))
 
-        for event in plot_data.events:
-            rotation = 90 if label_vertical else 0
-            plt.text(event[0] + 0.1, plot_data.existing_y[min(len(plot_data.existing_y) - 1, event[0])],
-                     event[1], rotation=rotation,
-                     color=color)
-            # plt.axvline(event[0], dashes=(5, 2, 1, 2), color=color)
+
 
     def plot_statistical_model(self):
         # plot fitted curve
@@ -191,7 +216,8 @@ class DataModel(object):
         # plot existing
         plt.scatter(x, y)
         plt.annotate(f"{date_point[-1]}: {int(y[-1])}", xy=(x[-1], y[-1]),
-                     xytext=(x[-1] / 2, y[-1]), arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=8))
+                     xytext=(x[-1] / 2, y[-1]),
+                     arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=8))
 
         if x_1 is not None and y_1 is not None:
             # plot fitted curve

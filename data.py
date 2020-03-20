@@ -50,38 +50,27 @@ class EventData(WhoDataSource):
 
 class AbstractData(object):
     x = None
-    y = None
+    total_cases = None
+    new_cases = None
     label = None
     date_point = None
     events = None
 
 
-class CountryTotalData(AbstractData):
+class CountryData(AbstractData):
 
     def __init__(self, country_name):
         who_data_source = WhoDataSource()
         event_data_source = EventData()
         country_data = who_data_source.get_location_data(country_name)
 
-        self.y = country_data["total_cases"].values
+        self.total_cases = country_data["total_cases"].values
+        self.new_cases = country_data["new_cases"].values
         self.date_point = country_data["date"].values
-        self.x = np.arange(0, len(self.y), 1)
+        self.x = np.arange(0, len(self.total_cases), 1)
         self.label = country_name
         self.events = event_data_source.get_location_data(country_name)
 
-
-class CountryIncrementalData(AbstractData):
-
-    def __init__(self, country_name):
-        who_data_source = WhoDataSource()
-        event_data_source = EventData()
-        country_data = who_data_source.get_location_data(country_name)
-
-        self.y = country_data["new_cases"].values
-        self.date_point = country_data["date"].values
-        self.x = np.arange(0, len(self.y), 1)
-        self.label = country_name
-        self.events = event_data_source.get_location_data(country_name)
 
 
 class FileData(AbstractData):
