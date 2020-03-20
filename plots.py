@@ -5,14 +5,16 @@ from matplotlib import pyplot as plt
 import mpld3
 
 from analysis import DataModel, StatisticModel
-from data import FileData, CountryData
+from data import FileData, CountryTotalData, CountryIncrementalData
 from statistic_models import si_model as si_model, si_model_expression as si_expression
+from analysis import datetime64_to_datetime
 
 font = {'size': 12}
 matplotlib.rc('font', **font)
 
 
-def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None):
+def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None, label_vertical=True,
+                     y_label="Accumulative cases"):
     """
     Plot alist of Data model to graph
     :param models:
@@ -21,9 +23,11 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None):
     plt.figure(figsize=(8, 6))
     plt.grid(b=True)
     for data_model in models:
-        data_model.plot_historical(y_threshold)
+        data_model.plot_historical(y_threshold, label_vertical, y_label)
     plt.legend()
     plt.yscale('log')
+    last_date = datetime64_to_datetime(models[0].data_last_date).strftime("%Y-%m-%d")
+    plt.title(f"Data updated on {last_date}")
     if savefig is not None:
         plt.savefig(savefig)
 
@@ -33,7 +37,7 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None):
 
 
 def plot_country(country_name):
-    country_model = get_country_model(country_name)
+    country_model = get_country_total_model(country_name)
     country_model.plot()
 
 
@@ -42,11 +46,18 @@ def plot_file(file_name):
     file_model.plot()
 
 
-def country_comparision(country_names):
+def country_total_comparison(country_names):
     country_models = []
     for country in country_names:
-        country_models.append(get_country_model(country))
-    plot_model_lists(country_models, "plots/countries.png", 50)
+        country_models.append(get_country_total_model(country))
+    plot_model_lists(country_models, "plots/country_totals.png", 50)
+
+
+def country_incremental_comparison(country_names):
+    country_models = []
+    for country in country_names:
+        country_models.append(get_country_incremental_model(country))
+    plot_model_lists(country_models, "plots/country_incrementals.png", 50, False, "Incremental cases")
 
 
 def file_comparison(city_names):
@@ -69,8 +80,15 @@ def get_file_model(city_name):
     return file_model
 
 
-def get_country_model(country_name):
-    country_data = CountryData(country_name)
+def get_country_total_model(country_name):
+    country_total_data = CountryTotalData(country_name)
     analysis_model = StatisticModel(si_model, si_expression)
-    country_model = DataModel(country_data, analysis_model)
-    return country_model
+    country_total_model = DataModel(country_total_data, analysis_model)
+    return country_total_model
+
+
+def get_country_incremental_model(country_name):
+    country_incremental_data = CountryIncrementalData(country_name)
+    analysis_model = StatisticModel(si_model, si_expression)
+    country_incremental_model = DataModel(country_incremental_data, analysis_model)
+    return country_incremental_model

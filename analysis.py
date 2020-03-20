@@ -6,9 +6,17 @@ from statistic_models import si_model_expression as si_expression
 from data import AbstractData
 import matplotlib.ticker as ticker
 
+import pandas as pd
+from datetime import datetime
+
 
 # todo add states comparision in US
 # todo add province comparision in Canada
+
+
+def datetime64_to_datetime(dt64):
+    ts = (dt64 - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
+    return datetime.utcfromtimestamp(ts)
 
 
 def get_cmap(n, name='hsv'):
@@ -88,7 +96,8 @@ class DataModel(object):
     def __init__(self, target_data: AbstractData, statistics_model: StatisticModel):
         self.target_data = target_data
         self.statistic_model = statistics_model
-        self.statistic_model.fit(self.target_data.x, self.target_data.y)
+        self.data_last_date = self.target_data.date_point[-1]
+        # self.statistic_model.fit(self.target_data.x, self.target_data.y)
 
     def get_event_data(self, start_date):
         events = self.target_data.events
@@ -120,7 +129,10 @@ class DataModel(object):
             x_1 = None
             y_1 = None
 
-        event_data = self.get_event_data(date_point[0])
+        if len(date_point) > 0:
+            event_data = self.get_event_data(date_point[0])
+        else:
+            event_data = pd.DataFrame([])
         plot_event_data = []
         for index, row in event_data.iterrows():
             plot_event_data.append([row['offset'].days, f"{row['location']}: {row['event']}"])
@@ -132,10 +144,10 @@ class DataModel(object):
                         curve_y=y_1,
                         events=plot_event_data)
 
-    def plot_historical(self, y_threshold=None):
+    def plot_historical(self, y_threshold=None, label_vertical=True, y_label="Accumulative cases"):
         # plot fitted curve
         plot_data = self.get_plot_data(y_threshold)
-        self.setup_axis(str(y_threshold))
+        self.setup_axis(str(y_threshold), y_label)
         color = get_label_color(self.target_data.label)
 
         plt.plot(plot_data.existing_x, plot_data.existing_y, label=self.target_data.label, color=color)
@@ -145,8 +157,9 @@ class DataModel(object):
         ax.xaxis.set_minor_locator(ticker.MultipleLocator(1))
 
         for event in plot_data.events:
-            plt.text(event[0]+0.1, plot_data.existing_y[min(len(plot_data.existing_y)-1, event[0])],
-                     event[1], rotation=90,
+            rotation = 90 if label_vertical else 0
+            plt.text(event[0] + 0.1, plot_data.existing_y[min(len(plot_data.existing_y) - 1, event[0])],
+                     event[1], rotation=rotation,
                      color=color)
             # plt.axvline(event[0], dashes=(5, 2, 1, 2), color=color)
 
@@ -157,9 +170,9 @@ class DataModel(object):
 
         plt.plot(plot_data.curve_x, plot_data.curve_y, label=self.target_data.label)
 
-    def setup_axis(self, x_start_case="first"):
+    def setup_axis(self, x_start_case="first", y_label="Accumulative cases"):
         plt.xlabel(f"Num days from first {x_start_case} confirmed case")
-        plt.ylabel("Accumulative cases")
+        plt.ylabel(y_label)
 
     def plot(self):
         """

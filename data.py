@@ -56,7 +56,7 @@ class AbstractData(object):
     events = None
 
 
-class CountryData(AbstractData):
+class CountryTotalData(AbstractData):
 
     def __init__(self, country_name):
         who_data_source = WhoDataSource()
@@ -64,6 +64,20 @@ class CountryData(AbstractData):
         country_data = who_data_source.get_location_data(country_name)
 
         self.y = country_data["total_cases"].values
+        self.date_point = country_data["date"].values
+        self.x = np.arange(0, len(self.y), 1)
+        self.label = country_name
+        self.events = event_data_source.get_location_data(country_name)
+
+
+class CountryIncrementalData(AbstractData):
+
+    def __init__(self, country_name):
+        who_data_source = WhoDataSource()
+        event_data_source = EventData()
+        country_data = who_data_source.get_location_data(country_name)
+
+        self.y = country_data["new_cases"].values
         self.date_point = country_data["date"].values
         self.x = np.arange(0, len(self.y), 1)
         self.label = country_name
