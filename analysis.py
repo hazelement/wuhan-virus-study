@@ -178,15 +178,13 @@ class DataModel(object):
                     new_x.append(plot_data.existing_x[i])
                     new_y.append(y)
             plt.plot(new_x, new_y,
-                        label=self.target_data.label, color=color)
+                     label=self.target_data.label, color=color)
             plt.scatter(new_x, new_y,
                         label=self.target_data.label, color=color)
 
         ax = plt.axes()
         ax.xaxis.set_major_locator(ticker.MultipleLocator(7))
         ax.xaxis.set_minor_locator(ticker.MultipleLocator(1))
-
-
 
     def plot_statistical_model(self):
         # plot fitted curve

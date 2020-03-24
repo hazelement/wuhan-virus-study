@@ -5,7 +5,7 @@ import pandas as pd
 import os
 import time
 
-WHO_LINK = "https://covid.ourworldindata.org/data/full_data.csv"
+WHO_LINK = "https://covid.ourworldindata.org/data/ecdc/full_data.csv"
 
 CACHE_FILE = "data/who_data.csv"
 EVENTS_FILE = "data/events.csv"
@@ -33,7 +33,9 @@ def read_data(filename):
 class WhoDataSource(object):
 
     def __init__(self):
-        if (int(time.time()) - os.path.getmtime(CACHE_FILE)) > 24 * 60 * 60:
+        if not os.path.exists(CACHE_FILE):
+            retrieve_who_data()
+        elif (int(time.time()) - os.path.getmtime(CACHE_FILE)) > 24 * 60 * 60:
             retrieve_who_data()
 
         self.df = read_data(CACHE_FILE)

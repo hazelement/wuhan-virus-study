@@ -30,7 +30,6 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None, la
     plt.title(f"Data updated on {last_date}")
     if savefig is not None:
         plt.savefig(savefig)
-
         # mpld3.save_html(plt.gcf(), savefig.split(".")[0] + ".html")
 
     plt.show()
