@@ -4,6 +4,12 @@ refer to https://www.zhihu.com/question/367466399 for model formula
 
 ## Using si_model
 
+Country incremental
+![alt text](plots/country_incrementals.png)
+
+Country accumulative
+![alt text](plots/country_totals.png)
+
 ### Countries
 Canada
 ![alt text](plots/Canada.png)
@@ -11,8 +17,7 @@ Canada
 US
 ![alt text](plots/United States.png)
 
-Country Comparision
-![alt text](plots/countries.png)
+
 
 
 ### Compare to SARS

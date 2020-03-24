@@ -20,7 +20,7 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None, la
     :param models:
     :return:
     """
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(16, 9))
     plt.grid(b=True)
     for data_model in models:
         data_model.plot_data(y_threshold, label_vertical, plot_accumulative)
@@ -32,7 +32,7 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None, la
         plt.savefig(savefig)
         # mpld3.save_html(plt.gcf(), savefig.split(".")[0] + ".html")
 
-    plt.show()
+    # plt.show()
 
 
 def plot_country(country_name):
@@ -49,7 +49,7 @@ def country_total_comparison(country_names):
     country_models = []
     for country in country_names:
         country_models.append(get_country_total_model(country))
-    plot_model_lists(country_models, "plots/country_totals.png", 50)
+    plot_model_lists(country_models, "plots/country_totals.png", 50, False)
 
 
 def country_incremental_comparison(country_names):
