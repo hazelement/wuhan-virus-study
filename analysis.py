@@ -187,6 +187,7 @@ class DataModel(object):
                         label=None, color=color)
 
             plt.xscale('log')
+            plt.xlabel(f"Accumulative cases from first {str(y_threshold)} confirmed case")
 
 
     def plot_statistical_model(self):
