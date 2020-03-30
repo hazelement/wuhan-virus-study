@@ -2,7 +2,6 @@ from typing import List
 
 import matplotlib
 from matplotlib import pyplot as plt
-import mpld3
 
 from analysis import DataModel, StatisticModel
 from data import FileData, CountryData

@@ -169,22 +169,25 @@ class DataModel(object):
                          event[1], rotation=rotation,
                          color=color)
                 # plt.axvline(event[0], dashes=(5, 2, 1, 2), color=color)
+
+            ax = plt.axes()
+            ax.xaxis.set_major_locator(ticker.MultipleLocator(7))
+            ax.xaxis.set_minor_locator(ticker.MultipleLocator(1))
         else:
 
-            new_x = []
-            new_y = []
+            existing_cases = []
+            daily_incrementals = []
             for i, y in enumerate(plot_data.new_y):
                 if y != 0:
-                    new_x.append(plot_data.existing_x[i])
-                    new_y.append(y)
-            plt.plot(new_x, new_y,
+                    existing_cases.append(plot_data.existing_y[i])
+                    daily_incrementals.append(y)
+            plt.plot(existing_cases, daily_incrementals,
                      label=self.target_data.label, color=color)
-            plt.scatter(new_x, new_y,
+            plt.scatter(existing_cases, daily_incrementals,
                         label=self.target_data.label, color=color)
 
-        ax = plt.axes()
-        ax.xaxis.set_major_locator(ticker.MultipleLocator(7))
-        ax.xaxis.set_minor_locator(ticker.MultipleLocator(1))
+            plt.xscale('log')
+
 
     def plot_statistical_model(self):
         # plot fitted curve
