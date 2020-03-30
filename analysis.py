@@ -184,7 +184,7 @@ class DataModel(object):
             plt.plot(existing_cases, daily_incrementals,
                      label=self.target_data.label, color=color)
             plt.scatter(existing_cases, daily_incrementals,
-                        label=self.target_data.label, color=color)
+                        label=None, color=color)
 
             plt.xscale('log')
 
