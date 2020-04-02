@@ -1,10 +1,63 @@
+
 Transform: 'AWS::Serverless-2016-10-31'
 Resources:
   Covid19Lambda:
     Type: AWS::Serverless::Function
     Properties:
-      MemorySize: 256
+      MemorySize: 512
       Timeout: 30
       CodeUri: ./
       Handler: lambda_function.my_handler
       Runtime: python3.7
+
+  CovidRunTrigger:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Schedule run lambda"
+      ScheduleExpression: "rate(1 day)"
+      State: "ENABLED"
+      Targets:
+        -
+          Arn:
+            Fn::GetAtt:
+              - "Covid19Lambda"
+              - "Arn"
+          Id: "Covid19Lambda1"
+
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Ref: "Covid19Lambda"
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn:
+        Fn::GetAtt:
+          - "CovidRunTrigger"
+          - "Arn"
+
+  CovidBucket:
+    Type: AWS::S3::Bucket
+    DependsOn: CovidBucketPolicy
+
+  CovidBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: "CovidBucket"
+      PolicyDocument:
+        Statement:
+          - Action:
+              - "s3:PutObject"
+            Effect: "Allow"
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:aws:s3:::"
+                  - Ref: "CovidBucket"
+                  - "/*"
+            Principal: "lambda.amazonaws.com"
+            SourceArn:
+              Fn::GetAtt:
+                - "Covid19Lambda"
+                - "Arn"
