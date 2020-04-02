@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "covid19"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-iir5vymunc3s"
+s3_prefix = "covid19"
+region = "us-west-2"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"

@@ -30,15 +30,20 @@ def read_data(filename):
     return data
 
 
+WHO_DATA = None
+
+
 class WhoDataSource(object):
 
     def __init__(self):
-        if not os.path.exists(CACHE_FILE):
-            retrieve_who_data()
-        elif (int(time.time()) - os.path.getmtime(CACHE_FILE)) > 24 * 60 * 60:
-            retrieve_who_data()
-
-        self.df = read_data(CACHE_FILE)
+        global WHO_DATA
+        # if not os.path.exists(CACHE_FILE):
+        #     retrieve_who_data()
+        # elif (int(time.time()) - os.path.getmtime(CACHE_FILE)) > 24 * 60 * 60:
+        #     retrieve_who_data()
+        if WHO_DATA is None:
+            WHO_DATA = read_data(WHO_LINK)
+        self.df = WHO_DATA.copy()
 
     def get_location_data(self, location):
         return self.df[self.df["location"] == location]
@@ -72,7 +77,6 @@ class CountryData(AbstractData):
         self.x = np.arange(0, len(self.total_cases), 1)
         self.label = country_name
         self.events = event_data_source.get_location_data(country_name)
-
 
 
 class FileData(AbstractData):
