@@ -46,7 +46,7 @@ def my_handler(event, context):
                "totals": get_object_url(bucket_name, totals_key)}
 
     response = client.publish(
-        TargetArn="arn:aws:sns:us-west-2:328555735540:Covid19Topic",
+        TargetArn=os.environ["SNSTopic"],
         Message=json.dumps(message)
     )
 

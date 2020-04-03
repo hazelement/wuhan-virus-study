@@ -28,7 +28,7 @@ Resources:
           S3IncrementalObjectKey: !Ref S3IncrementalObjectKey
           S3TotalObjectKey: !Ref S3TotalObjectKey
           CountriesToPlot: !Ref CountriesToPlot
-          SNSTopic: !GetAtt Covid19Topic.Arn
+          SNSTopic: !Ref Covid19Topic
       Role: !GetAtt  Covid19LambdaRole.Arn
       FunctionName: Covid19Lambda
       MemorySize: 512
