@@ -13,6 +13,20 @@ Resources:
       Handler: lambda_function.my_handler
       Runtime: python3.7
 
+  CovidBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "covid-19-plots"
+
+  Covid19Topic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: Covid19Topic
+      Subscription:
+        - Protocol: email
+          Endpoint: harry.zheng@outlook.com
+      TopicName: Covid19Topic
+
 
   CovidRunTrigger:
     Type: AWS::Events::Rule
@@ -25,6 +39,26 @@ Resources:
         - Arn: !GetAtt Covid19Lambda.Arn
           Id: Covid19Lambda1
 
+
+  Covid19LambdaRole:
+    DependsOn:
+      - Covid19BucketPolicy
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: "/"
+      ManagedPolicyArns:
+        - !Ref Covid19BucketPolicy
+        - !Ref Covid19TopicPolicy
+
   PermissionForEventsToInvokeLambda:
     Type: AWS::Lambda::Permission
     Properties:
@@ -34,15 +68,10 @@ Resources:
       SourceArn: !GetAtt CovidRunTrigger.Arn
 
 
-  CovidBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: "covid-19-plots"
-
-  CovidBucketPolicy:
+  Covid19BucketPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: CovidBucketPolicy
+      ManagedPolicyName: Covid19BucketPolicy
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -65,20 +94,21 @@ Resources:
                     - !GetAtt CovidBucket.Arn
                     - "/*"
 
-  Covid19LambdaRole:
-    DependsOn:
-      - CovidBucketPolicy
-    Type: AWS::IAM::Role
+  Covid19TopicPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
     Properties:
-      AssumeRolePolicyDocument:
+      Description: "policy to publish to Covid 19 topic"
+      ManagedPolicyName: Covid19TopicPolicy
+      PolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Path: "/"
-      ManagedPolicyArns:
-        - !Ref CovidBucketPolicy
+          - Action:
+              - "sns:Publish"
+            Effect: "Allow"
+            Resource:
+              - !Ref Covid19Topic
+
+
+
+
+
