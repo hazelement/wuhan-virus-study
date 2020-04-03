@@ -8,3 +8,4 @@ s3_prefix = "covid19"
 region = "us-west-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
+
