@@ -1,9 +1,34 @@
+Parameters:
+  CovidBucketName:
+    Type: "String"
+    Default: "covid-19-plots"
+    Description : "Default bucket name"
+  S3IncrementalObjectKey:
+    Type: "String"
+    Default: "public/country_incrementals.png"
+    Description : "s3 incremental object key"
+  S3TotalObjectKey:
+    Type: "String"
+    Default: "public/country_totals.png"
+    Description : "s3 total object key"
+  CountriesToPlot:
+    Type: "String"
+    Default: "United States,Italy,South Korea,China,Canada"
+    Description : "countries to plot"
+
 Transform: 'AWS::Serverless-2016-10-31'
 Resources:
 
   Covid19Lambda:
     Type: AWS::Serverless::Function
     Properties:
+      Environment:
+        Variables:
+          CovidBucketName: !Ref CovidBucketName
+          S3IncrementalObjectKey: !Ref S3IncrementalObjectKey
+          S3TotalObjectKey: !Ref S3TotalObjectKey
+          CountriesToPlot: !Ref CountriesToPlot
+          SNSTopic: !GetAtt Covid19Topic.Arn
       Role: !GetAtt  Covid19LambdaRole.Arn
       FunctionName: Covid19Lambda
       MemorySize: 512
@@ -15,7 +40,7 @@ Resources:
   CovidBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: "covid-19-plots"
+      BucketName: !Ref CovidBucketName
 
   Covid19Topic:
     Type: AWS::SNS::Topic

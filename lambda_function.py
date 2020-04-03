@@ -2,6 +2,7 @@ from plots import country_incremental_comparison, country_total_comparison, save
 import boto3
 import io
 import json
+import os
 
 
 # todo make AWS resource name defined in a global config file
@@ -11,7 +12,6 @@ def generate_graph_save_to_s3(bucket, key):
     img_data = io.BytesIO()
     save_plot(img_data)
     img_data.seek(0)
-    s3 = boto3.resource('s3')
     bucket.put_object(Body=img_data, ContentType='image/png', Key=key)
 
 
@@ -25,23 +25,18 @@ def get_object_url(s3_bucket_name, key_name):
 
 
 def my_handler(event, context):
-    country_names = [
-        "United States",
-        "Italy",
-        "South Korea",
-        "China",
-        "Canada"]
+    country_names = os.environ["CountriesToPlot"].split(",")
 
     print("Generating graphs")
-    bucket_name = "covid-19-plots"
+    bucket_name = os.environ["CovidBucketName"]
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(bucket_name)
 
-    inrementals_key = "public/country_incrementals.png"
+    inrementals_key = os.environ["S3IncrementalObjectKey"]
     country_incremental_comparison(country_names)
     generate_graph_save_to_s3(bucket, inrementals_key)
 
-    totals_key = "public/country_totals.png"
+    totals_key = os.environ["S3TotalObjectKey"]
     country_total_comparison(country_names)
     generate_graph_save_to_s3(bucket, totals_key)
 
