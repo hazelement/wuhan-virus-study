@@ -7,10 +7,10 @@ refer to https://www.zhihu.com/question/367466399 for model formula
 ## Using si_model
 
 Country incremental
-![alt text](https://harry-lambda-projects.s3-us-west-2.amazonaws.com/covid19/country_incrementals.png)
+![alt text](https://s3-us-west-2.amazonaws.com/covid-19-plots/public/country_incrementals.png)
 
 Country accumulative
-![alt text](https://harry-lambda-projects.s3-us-west-2.amazonaws.com/covid19/country_totals.png)
+![alt text](https://s3-us-west-2.amazonaws.com/covid-19-plots/public/country_totals.png)
 
 ### Countries
 Canada
