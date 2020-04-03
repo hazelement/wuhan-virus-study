@@ -1,4 +1,3 @@
-
 Transform: 'AWS::Serverless-2016-10-31'
 Resources:
 
@@ -42,7 +41,7 @@ Resources:
 
   Covid19LambdaRole:
     DependsOn:
-      - Covid19BucketPolicy
+      - Covid19BucketManagedPolicy
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -56,7 +55,7 @@ Resources:
               - 'sts:AssumeRole'
       Path: "/"
       ManagedPolicyArns:
-        - !Ref Covid19BucketPolicy
+        - !Ref Covid19BucketManagedPolicy
         - !Ref Covid19TopicPolicy
 
   PermissionForEventsToInvokeLambda:
@@ -68,10 +67,27 @@ Resources:
       SourceArn: !GetAtt CovidRunTrigger.Arn
 
 
-  Covid19BucketPolicy:
+  CovidBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CovidBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - !GetAtt CovidBucket.Arn
+                    - "/public/*"
+            Principal: "*"
+
+  Covid19BucketManagedPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: Covid19BucketPolicy
+      ManagedPolicyName: Covid19BucketManagedPolicy
       PolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -83,16 +99,19 @@ Resources:
                   - ""
                   - - !GetAtt CovidBucket.Arn
                     - "/*"
-          -
-            Action:
+          - Action:
               - "s3:PutObject"
             Effect: "Allow"
             Resource:
               - Fn::Join:
                   - ""
-                  -
-                    - !GetAtt CovidBucket.Arn
+                  - - !GetAtt CovidBucket.Arn
                     - "/*"
+          - Action:
+              - "s3:GetBucketLocation"
+            Effect: "Allow"
+            Resource:
+              - !GetAtt CovidBucket.Arn
 
   Covid19TopicPolicy:
     Type: "AWS::IAM::ManagedPolicy"

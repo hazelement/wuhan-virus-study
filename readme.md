@@ -1,5 +1,7 @@
 # Wuhan virus modeling
 
+This project is deployed to AWS Lambda using cloudformation. The lambda function is triggered everyday to replot the graph. New graphs are saved to S3 bucket. All AWS infrastructure and policies are specified in `template.yaml`. 
+
 refer to https://www.zhihu.com/question/367466399 for model formula
 
 ## Using si_model
