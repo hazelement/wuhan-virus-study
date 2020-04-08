@@ -32,7 +32,7 @@ def hashval(str, siz):
     return (hash % siz)  # Depending on the range, do a modulo operation.
 
 
-colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
+colors = ['blue', 'orange', 'green', 'red', 'purple', 'lightblue', 'pink', 'gray', 'olive', 'cyan']
 color_index = -1
 
 
@@ -182,9 +182,13 @@ class DataModel(object):
                     existing_cases.append(plot_data.existing_y[i])
                     daily_incrementals.append(y)
             plt.plot(existing_cases, daily_incrementals,
-                     label=self.target_data.label, color=color)
+                     label=self.target_data.label)
             plt.scatter(existing_cases, daily_incrementals,
-                        label=None, color=color)
+                        label=None)
+            # plt.plot(existing_cases, daily_incrementals,
+            #          label=self.target_data.label, color=color)
+            # plt.scatter(existing_cases, daily_incrementals,
+            #             label=None, color=color)
 
             plt.xscale('log')
             plt.xlabel(f"Accumulative cases from first {str(y_threshold)} confirmed case")

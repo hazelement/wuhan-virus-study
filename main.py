@@ -6,7 +6,9 @@ if __name__ == '__main__':
         "Italy",
         "South Korea",
         "China",
-        "Canada"]
+        "Canada",
+        "Singapore",
+    ]
     country_incremental_comparison(country_names)
     save_plot("plots/country_incrementals.png")
 
