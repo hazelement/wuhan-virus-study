@@ -13,7 +13,7 @@ Parameters:
     Description : "s3 total object key"
   CountriesToPlot:
     Type: "String"
-    Default: "United States,Italy,South Korea,China,Canada"
+    Default: "United States,Italy,South Korea,China,Canada,Singapore"
     Description : "countries to plot"
 
 Transform: 'AWS::Serverless-2016-10-31'
