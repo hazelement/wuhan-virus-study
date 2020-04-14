@@ -46,14 +46,14 @@ def country_total_comparison(country_names):
     country_models = []
     for country in country_names:
         country_models.append(get_country_total_model(country))
-    plot_model_lists(country_models, 50, False)
+    plot_model_lists(country_models, 100, False)
 
 
 def country_incremental_comparison(country_names):
     country_models = []
     for country in country_names:
         country_models.append(get_country_total_model(country))
-    plot_model_lists(country_models, 50, False, False)
+    plot_model_lists(country_models, 100, False, False)
 
 
 def file_comparison(city_names):

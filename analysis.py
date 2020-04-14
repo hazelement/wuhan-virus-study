@@ -121,10 +121,11 @@ class DataModel(object):
                 if y_ < y_threshold:
                     continue
             i += 1
-            x.append(i)
-            y.append(y_)
-            new_y.append(new_y_)
-            date_point.append(date_point_)
+            if new_y_ > 0:
+                x.append(i)
+                y.append(y_)
+                new_y.append(new_y_)
+                date_point.append(date_point_)
 
         if self.statistic_model.fitted:
             x_1 = np.arange(0, len(x) * 1.2, 1)
@@ -178,20 +179,20 @@ class DataModel(object):
             existing_cases = []
             daily_incrementals = []
             for i, y in enumerate(plot_data.new_y):
-                if y != 0:
-                    existing_cases.append(plot_data.existing_y[i])
-                    daily_incrementals.append(y)
-            plt.plot(existing_cases, daily_incrementals,
-                     label=self.target_data.label)
-            plt.scatter(existing_cases, daily_incrementals,
-                        label=None)
-            # plt.plot(existing_cases, daily_incrementals,
-            #          label=self.target_data.label, color=color)
-            # plt.scatter(existing_cases, daily_incrementals,
-            #             label=None, color=color)
 
-            plt.xscale('log')
-            plt.xlabel(f"Accumulative cases from first {str(y_threshold)} confirmed case")
+                existing_cases.append(plot_data.existing_y[i])
+                daily_incrementals.append(y)
+            # plt.plot(existing_cases, daily_incrementals,
+            #          label=self.target_data.label)
+            # plt.scatter(existing_cases, daily_incrementals,
+            #             label=None)
+            plt.plot(plot_data.existing_x, daily_incrementals,
+                     label=self.target_data.label)
+            plt.scatter(plot_data.existing_x, daily_incrementals,
+                        label=None)
+
+            # plt.xscale('log')
+            plt.xlabel(f"Date since first {str(y_threshold)} confirmed accumulative cases")
 
 
     def plot_statistical_model(self):
