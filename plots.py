@@ -12,7 +12,11 @@ font = {'size': 12}
 matplotlib.rc('font', **font)
 
 
-def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None, label_vertical=True,
+def save_plot(filename):
+    plt.savefig(filename, format="png")
+
+
+def plot_model_lists(models: List[DataModel], y_threshold=None, label_vertical=True,
                      plot_accumulative=True):
     """
     Plot alist of Data model to graph
@@ -28,11 +32,6 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None, la
     last_date = datetime64_to_datetime(
         models[0].data_last_date).strftime("%Y-%m-%d")
     plt.title(f"Data updated on {last_date}")
-    if savefig is not None:
-        plt.savefig(savefig)
-        # mpld3.save_html(plt.gcf(), savefig.split(".")[0] + ".html")
-
-    # plt.show()
 
 
 def plot_country(country_name):
@@ -49,13 +48,14 @@ def country_total_comparison(country_names):
     country_models = []
     for country in country_names:
         country_models.append(get_country_total_model(country))
-    plot_model_lists(country_models, "plots/country_totals.png", 50, False)
+    plot_model_lists(country_models, 100, False)
 
 
 def country_incremental_comparison(country_names):
     country_models = []
     for country in country_names:
         country_models.append(get_country_total_model(country))
+
     plot_model_lists(
         country_models, "plots/country_incrementals.png", 50, False, False)
 

@@ -1,0 +1,158 @@
+Parameters:
+  CovidBucketName:
+    Type: "String"
+    Default: "covid-19-plots"
+    Description : "Default bucket name"
+  S3IncrementalObjectKey:
+    Type: "String"
+    Default: "public/country_incrementals.png"
+    Description : "s3 incremental object key"
+  S3TotalObjectKey:
+    Type: "String"
+    Default: "public/country_totals.png"
+    Description : "s3 total object key"
+  CountriesToPlot:
+    Type: "String"
+    Default: "United States,Italy,South Korea,China,Canada,Singapore"
+    Description : "countries to plot"
+
+Transform: 'AWS::Serverless-2016-10-31'
+Resources:
+
+  Covid19Lambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          CovidBucketName: !Ref CovidBucketName
+          S3IncrementalObjectKey: !Ref S3IncrementalObjectKey
+          S3TotalObjectKey: !Ref S3TotalObjectKey
+          CountriesToPlot: !Ref CountriesToPlot
+          SNSTopic: !Ref Covid19Topic
+      Role: !GetAtt  Covid19LambdaRole.Arn
+      FunctionName: Covid19Lambda
+      MemorySize: 512
+      Timeout: 30
+      CodeUri: ./
+      Handler: lambda_function.my_handler
+      Runtime: python3.7
+
+  CovidBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref CovidBucketName
+
+  Covid19Topic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: Covid19Topic
+      Subscription:
+        - Protocol: email
+          Endpoint: harry.zheng@outlook.com
+      TopicName: Covid19Topic
+
+
+  CovidRunTrigger:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: CovidRunTrigger
+      Description: "Schedule run lambda"
+      ScheduleExpression: "rate(1 day)"
+      State: "ENABLED"
+      Targets:
+        - Arn: !GetAtt Covid19Lambda.Arn
+          Id: Covid19Lambda1
+
+
+  Covid19LambdaRole:
+    DependsOn:
+      - Covid19BucketManagedPolicy
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: "/"
+      ManagedPolicyArns:
+        - !Ref Covid19BucketManagedPolicy
+        - !Ref Covid19TopicPolicy
+
+  PermissionForEventsToInvokeLambda:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref Covid19Lambda
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt CovidRunTrigger.Arn
+
+
+  CovidBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref CovidBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - !GetAtt CovidBucket.Arn
+                    - "/public/*"
+            Principal: "*"
+
+  Covid19BucketManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: Covid19BucketManagedPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - "s3:ListBucket"
+            Effect: "Allow"
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - !GetAtt CovidBucket.Arn
+                    - "/*"
+          - Action:
+              - "s3:PutObject"
+            Effect: "Allow"
+            Resource:
+              - Fn::Join:
+                  - ""
+                  - - !GetAtt CovidBucket.Arn
+                    - "/*"
+          - Action:
+              - "s3:GetBucketLocation"
+            Effect: "Allow"
+            Resource:
+              - !GetAtt CovidBucket.Arn
+
+  Covid19TopicPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      Description: "policy to publish to Covid 19 topic"
+      ManagedPolicyName: Covid19TopicPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - "sns:Publish"
+            Effect: "Allow"
+            Resource:
+              - !Ref Covid19Topic
+
+
+
+
+

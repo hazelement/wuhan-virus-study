@@ -26,6 +26,7 @@ def get_cmap(n, name="hsv"):
 def hashval(str, siz):
     hash = 0
     # Take ordinal number of char in str, and just add
+
     for x in str:
         hash += ord(x)
     return hash % siz  # Depending on the range, do a modulo operation.
@@ -43,6 +44,7 @@ colors = [
     "olive",
     "cyan",
 ]
+
 color_index = -1
 
 
@@ -132,10 +134,11 @@ class DataModel(object):
                 if y_ < y_threshold:
                     continue
             i += 1
-            x.append(i)
-            y.append(y_)
-            new_y.append(new_y_)
-            date_point.append(date_point_)
+            if new_y_ > 0:
+                x.append(i)
+                y.append(y_)
+                new_y.append(new_y_)
+                date_point.append(date_point_)
 
         if self.statistic_model.fitted:
             x_1 = np.arange(0, len(x) * 1.2, 1)
@@ -202,6 +205,9 @@ class DataModel(object):
             existing_cases = []
             daily_incrementals = []
             for i, y in enumerate(plot_data.new_y):
+
+
+<< << << < HEAD
                 if y != 0:
                     existing_cases.append(plot_data.existing_y[i])
                     daily_incrementals.append(y)
@@ -218,6 +224,23 @@ class DataModel(object):
             plt.xlabel(
                 f"Accumulative cases from first {str(y_threshold)} confirmed case"
             )
+=======
+
+                existing_cases.append(plot_data.existing_y[i])
+                daily_incrementals.append(y)
+            # plt.plot(existing_cases, daily_incrementals,
+            #          label=self.target_data.label)
+            # plt.scatter(existing_cases, daily_incrementals,
+            #             label=None)
+            plt.plot(plot_data.existing_x, daily_incrementals,
+                     label=self.target_data.label)
+            plt.scatter(plot_data.existing_x, daily_incrementals,
+                        label=None)
+
+            # plt.xscale('log')
+            plt.xlabel(f"Date since first {str(y_threshold)} confirmed accumulative cases")
+
+>>>>>>> 48ff95ebada71ca23e3ae743c9dfdedca8208bf2
 
     def plot_statistical_model(self):
         # plot fitted curve

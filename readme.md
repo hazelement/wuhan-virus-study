@@ -1,14 +1,16 @@
 # Wuhan virus modeling
 
+This project is deployed to AWS Lambda using cloudformation. The lambda function is triggered everyday to replot the graph. New graphs are saved to S3 bucket. All AWS infrastructure and policies are specified in `template.yaml`. 
+
 refer to https://www.zhihu.com/question/367466399 for model formula
 
 ## Using si_model
 
 Country incremental
-![alt text](plots/country_incrementals.png)
+![alt text](https://s3-us-west-2.amazonaws.com/covid-19-plots/public/country_incrementals.png)
 
 Country accumulative
-![alt text](plots/country_totals.png)
+![alt text](https://s3-us-west-2.amazonaws.com/covid-19-plots/public/country_totals.png)
 
 ### Countries
 Canada
@@ -22,10 +24,10 @@ US
 
 ### Compare to SARS
 Need more data for wuhan
-![alt text](wuhan.png)
+![alt text](plots/wuhan.png)
 
 Compare to SARS
-![alt text](sars.png)
+![alt text](plots/sars.png)
 
 ### Todo
 
