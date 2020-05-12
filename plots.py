@@ -25,7 +25,8 @@ def plot_model_lists(models: List[DataModel], savefig=None, y_threshold=None, la
         data_model.plot_data(y_threshold, label_vertical, plot_accumulative)
     plt.legend()
     plt.yscale('log')
-    last_date = datetime64_to_datetime(models[0].data_last_date).strftime("%Y-%m-%d")
+    last_date = datetime64_to_datetime(
+        models[0].data_last_date).strftime("%Y-%m-%d")
     plt.title(f"Data updated on {last_date}")
     if savefig is not None:
         plt.savefig(savefig)
@@ -55,7 +56,8 @@ def country_incremental_comparison(country_names):
     country_models = []
     for country in country_names:
         country_models.append(get_country_total_model(country))
-    plot_model_lists(country_models, "plots/country_incrementals.png", 50, False, False)
+    plot_model_lists(
+        country_models, "plots/country_incrementals.png", 50, False, False)
 
 
 def file_comparison(city_names):
@@ -83,6 +85,3 @@ def get_country_total_model(country_name):
     analysis_model = StatisticModel(si_model, si_expression)
     country_total_model = DataModel(country_total_data, analysis_model)
     return country_total_model
-
-
-
