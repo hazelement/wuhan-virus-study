@@ -1,12 +1,11 @@
 from typing import List
 
 import matplotlib
+from analysis import DataModel, StatisticModel, datetime64_to_datetime
+from data import CountryData, FileData
 from matplotlib import pyplot as plt
-
-from analysis import DataModel, StatisticModel
-from data import FileData, CountryData
-from statistic_models import si_model as si_model, si_model_expression as si_expression
-from analysis import datetime64_to_datetime
+from statistic_models import si_model as si_model
+from statistic_models import si_model_expression as si_expression
 
 font = {'size': 12}
 matplotlib.rc('font', **font)

@@ -1,12 +1,15 @@
-from plots import country_incremental_comparison, country_total_comparison, save_plot
-import boto3
 import io
 import json
 import os
 
+import boto3
+
+from plots import (country_incremental_comparison, country_total_comparison,
+                   save_plot)
 
 # todo make AWS resource name defined in a global config file
 # so that it can be accessed in yaml and python
+
 
 def generate_graph_save_to_s3(bucket, key):
     img_data = io.BytesIO()
@@ -16,7 +19,8 @@ def generate_graph_save_to_s3(bucket, key):
 
 
 def get_object_url(s3_bucket_name, key_name):
-    bucket_location = boto3.client('s3').get_bucket_location(Bucket=s3_bucket_name)
+    bucket_location = boto3.client(
+        's3').get_bucket_location(Bucket=s3_bucket_name)
     object_url = "https://s3-{0}.amazonaws.com/{1}/{2}".format(
         bucket_location['LocationConstraint'],
         s3_bucket_name,

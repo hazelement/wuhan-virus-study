@@ -205,12 +205,10 @@ class DataModel(object):
             existing_cases = []
             daily_incrementals = []
             for i, y in enumerate(plot_data.new_y):
-
-
-<< << << < HEAD
                 if y != 0:
                     existing_cases.append(plot_data.existing_y[i])
                     daily_incrementals.append(y)
+
             plt.plot(
                 existing_cases,
                 daily_incrementals,
@@ -224,23 +222,6 @@ class DataModel(object):
             plt.xlabel(
                 f"Accumulative cases from first {str(y_threshold)} confirmed case"
             )
-=======
-
-                existing_cases.append(plot_data.existing_y[i])
-                daily_incrementals.append(y)
-            # plt.plot(existing_cases, daily_incrementals,
-            #          label=self.target_data.label)
-            # plt.scatter(existing_cases, daily_incrementals,
-            #             label=None)
-            plt.plot(plot_data.existing_x, daily_incrementals,
-                     label=self.target_data.label)
-            plt.scatter(plot_data.existing_x, daily_incrementals,
-                        label=None)
-
-            # plt.xscale('log')
-            plt.xlabel(f"Date since first {str(y_threshold)} confirmed accumulative cases")
-
->>>>>>> 48ff95ebada71ca23e3ae743c9dfdedca8208bf2
 
     def plot_statistical_model(self):
         # plot fitted curve
